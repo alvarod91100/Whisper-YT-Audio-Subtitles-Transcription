@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 GOOGLE_YT_KEY = os.getenv('GOOGLE_YT_KEY')
+SHORTS_FILTER = False
 
 youtube=build(
     'youtube',
@@ -117,7 +118,7 @@ if __name__=="__main__":
         saveToFile("video_lists", filenamePrefix = CHANNEL_NAME, video_urls=video_urls)
     elif scope_choice == 2:
         uploads_playlist_id = str(input("Paste the playlist ID (you can find it in the URL after the 'list' argument): "))
-        video_urls = getChannelVideos(uploads_playlist_id, filterShortFormContent= False)
+        video_urls = getChannelVideos(uploads_playlist_id, filterShortFormContent= SHORTS_FILTER)
         prefix = str(input("Introduce Filename Prefix: "))
         saveToFile("video_lists", filenamePrefix = prefix, video_urls=video_urls)
 
