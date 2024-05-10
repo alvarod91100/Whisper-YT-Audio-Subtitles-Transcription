@@ -1,7 +1,7 @@
 # Whisper-YT-Audio-Transcription
  
 This tool is used to transcribe audio using [WhisperX](https://github.com/m-bain/whisperX) into `.srt` subtitles files in batch or individually. As well, it utilizes Google's Youtube API to get be able to query for video information and download the audio from the video in conjunction with [YT-DLP](https://github.com/yt-dlp/yt-dlp). With these, you can choose to download either all the videos from a channel or from a specific playlist. 
-It is recommended to run with a CUDA compatible GPU to speed up the transcription and diarization process. In general, a minimum of 4GB VRAM is recommended, but changing the batch size or model in the `transcribe.py` to higher values/bigger models may require up to 16GB VRAM.
+It is recommended to run with a CUDA compatible GPU to speed up the transcription and diarization process. In general, a minimum of 4GB VRAM is recommended, but changing the batch size or model in the `script_transcribe.py` to higher values/bigger models may require up to 16GB VRAM.
 
 ## Installation and Setup
 
@@ -24,9 +24,9 @@ The procedure of going from `youtube channel/playlist -> .srt video transcriptio
 3) Transcribing the audio files into `.srt` files using WhisperX. This will save the `.srt` files in the `outputs` directory.
 
 With this in mind, the execution of these three steps is separated into three scripts. The execution of each script must be done in the following order, if you want to replicate the above procedure:
-1) `get_youtube_videos.py`
-2) `audio_downloader.py`
-3) `transcribe.py`
+1) `script_get_youtube_videos.py`
+2) `script_audio_downloader.py`
+3) `script_transcribe.py`
 
 Do note that each file has variable parameters at the top that can be changed to suit your needs in case you want to change directory names, where the Whisper model is saved, the model size, batch size, etc.
 
