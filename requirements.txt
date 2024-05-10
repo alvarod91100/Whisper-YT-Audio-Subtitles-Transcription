@@ -1,0 +1,6 @@
+torch
+whisperx @ git+https://github.com/m-bain/whisperX@main
+yt_dlp
+google-api-python-client
+python-dotenv
+#sudo apt install ffmpeg
