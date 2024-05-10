@@ -30,7 +30,8 @@ With this in mind, the execution of these three steps is separated into three sc
 2) `script_audio_downloader.py`
 3) `script_transcribe.py` (you can choose to either get diarized transcripts or just plain transcripts)
 
-Do note that each file has variable parameters at the top that can be changed to suit your needs in case you want to change directory names, where the Whisper model is saved, the model size, batch size, etc.
+Do note that each file has variable parameters at the top that can be changed to suit your needs in case you want to change where the Whisper model is saved, the model size, batch size, audio codec, etc.
+Naturally, since the scripts are separated, you can choose to run them individually if you only want to, for example, transcribe an audio you already have, just getting some video links for another project, etc.
 
 > ### **Disclaimer**
 >
