@@ -11,7 +11,7 @@ load_dotenv()
 MAX_SPEAKERS = 2
 MIN_SPEAKERS = 1
 AUDIO_DIR = "audio/"
-MODELS_DIR = "/mnt/c/Users/alvar/Documents/DeepLearning-Models/Whisper/models_whisper"
+MODELS_DIR = os.getenv('MODELS_DIR') if os.getenv('MODELS_DIR') else "./models/"
 HUGGINGFACE_KEY = os.getenv('HUGGINGFACE_KEY')
 WHISPER_MODEL = os.getenv('WHISPER_MODEL') if os.getenv('WHISPER_MODEL') else  "distil-large-v2"
 BATCH_SIZE= os.getenv('BATCH_SIZE') if os.getenv('BATCH_SIZE') else 16
