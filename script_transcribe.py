@@ -13,11 +13,13 @@ MIN_SPEAKERS = 1
 AUDIO_DIR = "audio/"
 MODELS_DIR = "/mnt/c/Users/alvar/Documents/DeepLearning-Models/Whisper/models_whisper"
 HUGGINGFACE_KEY = os.getenv('HUGGINGFACE_KEY')
-WHISPER_MODEL = "distil-large-v2"
+WHISPER_MODEL = os.getenv('WHISPER_MODEL') if os.getenv('WHISPER_MODEL') else  "distil-large-v2"
+BATCH_SIZE= os.getenv('BATCH_SIZE') if os.getenv('BATCH_SIZE') else 16
+CHUNK_SIZE= os.getenv('CHUNK_SIZE') if os.getenv('CHUNK_SIZE') else 8
 
 def checkCUDA() -> str:
     available_gpu_memory = round(torch.cuda.mem_get_info()[0]/1e9, 2) if torch.cuda.is_available() else 0
-    compute_type, device = ("float16", "cuda") if available_gpu_memory >= 8 else ("float32", "cpu")
+    compute_type, device = ("float16", "cuda") if available_gpu_memory >= 4 else ("float32", "cpu")
     print(f"Available GPU memory: {available_gpu_memory}GB")
     print(f"Using {device} with {compute_type} compute")
     return device, compute_type
@@ -25,7 +27,7 @@ def checkCUDA() -> str:
 def transcriptAudio(audioFilePath:str, device:str, compute_type:str) -> dict:
     model = whisperx.load_model(WHISPER_MODEL, device= device, compute_type=compute_type, download_root=MODELS_DIR)
     audio= whisperx.load_audio(audioFilePath)
-    resultTranscription = model.transcribe(audio, batch_size=16, chunk_size=8, print_progress=True)
+    resultTranscription = model.transcribe(audio, batch_size=BATCH_SIZE, chunk_size=CHUNK_SIZE, print_progress=True)
     return resultTranscription, audio
 
 def alignTranscription(resultTranscription, audio):
