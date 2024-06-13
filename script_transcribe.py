@@ -6,6 +6,8 @@ from utils.misc import showFiles, showDir
 from utils.ResultSubtitlesParser import ResultSubtitlesParser
 from tqdm import tqdm
 from dotenv import load_dotenv
+from srt_file_translator import Translator
+
 load_dotenv()
 
 MAX_SPEAKERS = 2
@@ -16,6 +18,7 @@ HUGGINGFACE_KEY = os.getenv('HUGGINGFACE_KEY')
 WHISPER_MODEL = os.getenv('WHISPER_MODEL') if os.getenv('WHISPER_MODEL') else  "distil-large-v2"
 BATCH_SIZE= os.getenv('BATCH_SIZE') if os.getenv('BATCH_SIZE') else 16
 CHUNK_SIZE= os.getenv('CHUNK_SIZE') if os.getenv('CHUNK_SIZE') else 8
+TRANSLATE= os.getenv('TRANSLATE') if os.getenv('TRANSLATE') else False
 
 def checkCUDA() -> str:
     available_gpu_memory = round(torch.cuda.mem_get_info()[0]/1e9, 2) if torch.cuda.is_available() else 0
@@ -51,14 +54,31 @@ def diarizationPipeline(audioFilePath:str, language:str, device:str, compute_typ
     del resultTranscriptionAligned, resultTranscription
     return resultTranscriptionDiarized, audio
 
-def parseAudio(resultDict:dict, fileName:str, diarize:bool = False) -> None:
+def translate_srt(source_srt_path:str, gcp_key:str, source_lang:str, target_lang:str):
+    translator = Translator(key_path=gcp_key)
+    translator.srt_file_translator(
+        source_file=source_srt_path,
+        target_file=source_srt_path,
+        source_language=source_lang,
+        target_language=target_lang,
+        statement_delimiters=['.', '?', '!']
+    )
+
+def parseAudio(resultDict:dict, fileName:str, diarize:bool = False, translate:bool= False) -> None:
     resultPath= "outputs/diarized/" if diarize else "outputs/transcripts/"
     parser = ResultSubtitlesParser()
     transcript= ResultSubtitlesParser.parse_output_diarized(resultDict) if diarize else ResultSubtitlesParser.parse_output(resultDict)
     with open(f"{resultPath}/{fileName.split('.')[0]}.srt", "w") as file:
         file.write(transcript)
         file.close()
-    
+    if translate:
+        translate_srt(
+            source_srt_path= f"{resultPath}/{fileName.split('.')[0]}.srt", 
+            gcp_key= os.getenv("GCP_KEY_PATH"), 
+            source_lang= os.getenv("TRANSLATE_ORIGIN_LANG"), 
+            target_lang= os.getenv("TRANSLATE_TARGET_LANG")
+        )
+
 def deleteVars() -> None:
     del model
     del audio
@@ -102,5 +122,6 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"Changing to float32 due to error: {e}")
             resultTranscription, _ = transcriptAudio(audioFilePath, language,device, compute_type) if methodChoice == 1 else diarizationPipeline(audioFilePath, language, device, compute_type, MIN_SPEAKERS, MAX_SPEAKERS)
-        parsedAudio= parseAudio(resultTranscription, fileName, diarize= False if methodChoice == 1 else True)
+        parsedAudio= parseAudio(resultTranscription, fileName, diarize= False if methodChoice == 1 else True, translate= TRANSLATE)
         delete_all_variables()
+        

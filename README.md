@@ -11,13 +11,13 @@ The code is a little messy since I'm still learning how to properly structure a 
 2. Install the required packages using `pip install -r requirements.txt`
 3. Install FFMPEG (follow instructions [here](https://ffmpeg.org/download.html))
 4. Get or create a Google API key by following the instructions [here](https://developers.google.com/youtube/registering_an_application). Make sure that the API key has access to the **Youtube Data API v3**.
-5. Accept user agreements for the following HuggingFace models:
+5. If you want to use the translation feature, you must create a GCP JSON Key to access the Google Translate Service.
+6. Accept user agreements for the following HuggingFace models:
     - [pyannote/segmentation-3.0](https://huggingface.co/pyannote/segmentation-3.0)
     - [pyannote/speaker-diarization-3.1](https://huggingface.co/pyannote/speaker-diarization-3.1)
-    - [pyannote/speaker-diarization](https://huggingface.co/pyannote/speaker-diarization
-    )
-6. Get or create a HuggingFace API key by following the instructions [here](https://huggingface.co/docs/api-inference/quicktour#get-your-api-token).
-7. Create a `.env` file in the root directory of the project and follow the format of the `.env.example` file. Fill in the necessary information.
+    - [pyannote/speaker-diarization](https://huggingface.co/pyannote/speaker-diarization)
+7. Get or create a HuggingFace API key by following the instructions [here](https://huggingface.co/docs/api-inference/quicktour#get-your-api-token).
+8. Create a `.env` file in the root directory of the project and follow the format of the `.env.example` file. Fill in the necessary information.
 
 ## Usage
 The procedure of going from `youtube channel/playlist -> .srt video transcriptions` consists of three parts:
