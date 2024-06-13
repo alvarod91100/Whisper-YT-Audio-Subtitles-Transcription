@@ -10,7 +10,7 @@ load_dotenv()
 
 MAX_SPEAKERS = 2
 MIN_SPEAKERS = 1
-AUDIO_DIR = "audio/"
+AUDIO_DIR = "./audio/"
 MODELS_DIR = os.getenv('MODELS_DIR') if os.getenv('MODELS_DIR') else "./models/"
 HUGGINGFACE_KEY = os.getenv('HUGGINGFACE_KEY')
 WHISPER_MODEL = os.getenv('WHISPER_MODEL') if os.getenv('WHISPER_MODEL') else  "distil-large-v2"
@@ -24,10 +24,11 @@ def checkCUDA() -> str:
     print(f"Using {device} with {compute_type} compute")
     return device, compute_type
 
-def transcriptAudio(audioFilePath:str, device:str, compute_type:str) -> dict:
-    model = whisperx.load_model(WHISPER_MODEL, device= device, compute_type=compute_type, download_root=MODELS_DIR)
+def transcriptAudio(audioFilePath:str, language:str, device:str, compute_type:str) -> dict:
+    model = whisperx.load_model(WHISPER_MODEL, language= language,device= device, compute_type=compute_type, download_root=MODELS_DIR)
     audio= whisperx.load_audio(audioFilePath)
-    resultTranscription = model.transcribe(audio, batch_size=BATCH_SIZE, chunk_size=CHUNK_SIZE, print_progress=True)
+    print(language)
+    resultTranscription = model.transcribe(audio, language= language, batch_size=BATCH_SIZE, chunk_size=CHUNK_SIZE, print_progress=True)
     return resultTranscription, audio
 
 def alignTranscription(resultTranscription, audio):
@@ -43,8 +44,8 @@ def diarizeTranscription(resultTranscriptionAligned, audio, min_speakers:int=1, 
     del diarize_model, diarize_segments
     return resultTranscriptionDiarized
 
-def diarizationPipeline(audioFilePath:str, device:str, compute_type:str, min_speakers:int=1, max_speakers:int=2):
-    resultTranscription, audio = transcriptAudio(audioFilePath, device, compute_type)
+def diarizationPipeline(audioFilePath:str, language:str, device:str, compute_type:str, min_speakers:int=1, max_speakers:int=2):
+    resultTranscription, audio = transcriptAudio(audioFilePath, language, device, compute_type)
     resultTranscriptionAligned = alignTranscription(resultTranscription, audio)
     resultTranscriptionDiarized = diarizeTranscription(resultTranscriptionAligned, audio, min_speakers=min_speakers, max_speakers=max_speakers)
     del resultTranscriptionAligned, resultTranscription
@@ -86,6 +87,9 @@ if __name__ == "__main__":
     files= showFiles(audioPath, "audio")
     audioChoice = int(input("Enter the file number you want to transcribe: "))
     methodChoice = int(input("\nWould you like to just get\n1) The normal subtitle transcript\nor\n2) The diarized transcript\nEnter your choice as number: "))
+    languageChoice= int(input("\nIs the audio in as \n1) English \nor\n2) Spanish \nor\n3) Autodetect \nEnter your choice as number: "))
+    language="en" if languageChoice == 1 else "es" if languageChoice == 2 else None
+    print(language)
     resultPath =  "outputs/transcripts/" if methodChoice == 1 else "outputs/diarized/"
     filesProcess = files.values() if audioChoice  == -1 else [files[audioChoice]]
     filesProcess = filterAlreadyTranscribed(filesProcess, resultPath)
@@ -94,9 +98,9 @@ if __name__ == "__main__":
         audioFilePath= audioPath + fileName
         print(f"Processing audio: {audioFilePath}", end= "\r")
         try:
-            resultTranscription, _ = transcriptAudio(audioFilePath, device, compute_type) if methodChoice == 1 else diarizationPipeline(audioFilePath, device, compute_type, MIN_SPEAKERS, MAX_SPEAKERS)
+            resultTranscription, _ = transcriptAudio(audioFilePath, language,device, compute_type) if methodChoice == 1 else diarizationPipeline(audioFilePath, language, device, compute_type, MIN_SPEAKERS, MAX_SPEAKERS)
         except Exception as e:
             print(f"Changing to float32 due to error: {e}")
-            resultTranscription, _ = transcriptAudio(audioFilePath, device, compute_type) if methodChoice == 1 else diarizationPipeline(audioFilePath, device, compute_type, MIN_SPEAKERS, MAX_SPEAKERS)
+            resultTranscription, _ = transcriptAudio(audioFilePath, language,device, compute_type) if methodChoice == 1 else diarizationPipeline(audioFilePath, language, device, compute_type, MIN_SPEAKERS, MAX_SPEAKERS)
         parsedAudio= parseAudio(resultTranscription, fileName, diarize= False if methodChoice == 1 else True)
         delete_all_variables()
